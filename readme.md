@@ -7,6 +7,11 @@ Retrieve Image on Oxford5k dataset using [Hessian Affine SIFT](https://github.co
 pip install -r requirements.txt
 ```
 
+## Download dataset
+```
+bash download.sh
+```
+
 ## Running
 ```
 python app.py
