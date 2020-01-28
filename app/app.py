@@ -12,6 +12,8 @@ search_model = compactCode(centers_path="../centers/centers.h5py",
                            codes_name="../centers/codes_name")
 model = Search(search_model)
 
+# create temp folder
+os.makedirs('static/temp', exist_ok=True)
 # result
 res_img = ['temp/result{:02}.jpg'.format(i) for i in range(10)]
 # result combined
