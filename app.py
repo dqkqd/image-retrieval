@@ -6,18 +6,20 @@ from PIL import Image
 from werkzeug.utils import secure_filename
 from flask import Flask, render_template, url_for, request, redirect, Markup
 from utils import compactCode, Search
-search_model = compactCode(centers_path="../centers/centers.h5py",
-                           pq_centers_path="../centers/pq_centers.h5py",
-                           codes_path="../centers/codes",
-                           codes_name="../centers/codes_name")
+
+search_model = compactCode(centers_path=os.path.join("centers", "centers.h5py"),
+                           pq_centers_path=os.path.join("centers", "pq_centers.h5py"),
+                           codes_path=os.path.join("centers", "codes"),
+                           codes_name=os.path.join("centers", "codes_name"))
+
 model = Search(search_model)
 
 # create temp folder
-os.makedirs('static/temp', exist_ok=True)
+os.makedirs(os.path.join("static", "temp"), exist_ok=True)
 # result
-res_img = ['temp/result{:02}.jpg'.format(i) for i in range(10)]
+res_img = [os.path.join("temp", "result{:02}.jpg".format(i)) for i in range(10)]
 # result combined
-com_img = ['temp/combined{:02}.jpg'.format(i) for i in range(10)]
+com_img = [os.path.join("temp", "combined{:02}.jpg".format(i)) for i in range(10)]
 
 app = Flask(__name__)
 
@@ -73,7 +75,7 @@ def home():
             width, height = image.size
             variable = '-'.join([file_image.filename, str(width), str(height)])
 
-            image.save('static/temp/image-search.jpg')
+            image.save(os.path.join('static', 'temp', 'image-search.jpg'))
 
             return redirect(url_for('search', filename=variable))
     else:
@@ -96,11 +98,11 @@ def search(filename):
         else:
             coords = [int(int(t) * SCALE) for t in [x, y, w, h]]
 
-        model.search('static/temp/image-search.jpg', coords)
+        model.search(os.path.join('static', 'temp', 'image-search.jpg'), coords)
 
         return redirect(url_for("results", pagenum=1))
     else:
-        return render_template("search.html", filename='temp/image-search.jpg')
+        return render_template("search.html", filename=os.path.join('temp', 'image-search.jpg'))
 
 
 @app.route("/results/<pagenum>", methods=['POST', 'GET'])

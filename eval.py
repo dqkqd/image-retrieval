@@ -5,10 +5,10 @@ import cv2
 from tqdm import tqdm
 from utils import compactCode, Search
 
-search_model = compactCode(centers_path="../centers/centers.h5py",
-                            pq_centers_path="../centers/pq_centers.h5py",
-                            codes_path="../centers/codes",
-                            codes_name="../centers/codes_name")
+search_model = compactCode(centers_path=os.path.join('centers', 'centers.h5py'),
+                            pq_centers_path=os.path.join('centers', 'pq_centers.h5py'),
+                            codes_path=os.path.join('centers', 'codes'),
+                            codes_name=os.path.join('centers', 'codes_name'))
 model = Search(search_model)
 
 
@@ -43,8 +43,7 @@ def compute_ap(pos, junk, rank_list):
     return aps
 
 if __name__ == "__main__":
-    gt_files = '../groundtruth/'
-    query_list = glob.glob('../groundtruth/*query*')
+    query_list = glob.glob(os.path.join('groundtruth', '*query*'))
 
     mAPs = {
         100: 0.0,
@@ -63,8 +62,8 @@ if __name__ == "__main__":
             names = names[5:]
             coords = [int(float(t)) for t in contents[1:]]
 
-            image_dir = '../dataset/{}.jpg'.format(names)
-            model.search(image_dir, coords)
+            image_dir = os.path.join('dataset', '{}.jpg'.format(names))
+            model.search(image_dir, coords, quiet=True)
             rank_list = model.rank_list
 
         # get pos and neg arr
@@ -72,14 +71,15 @@ if __name__ == "__main__":
         junk = []
         query_name = query.split('/')[-1].split('_')
         query_name = '_'.join(query_name[:-1])
-        pos_names = glob.glob("../groundtruth/*{}*o*".format(query_name))
+
+        pos_names = glob.glob(os.path.join('groundtruth', '*{}*o*'.format(query_name)))
         for pos_name in pos_names:
             with open(pos_name, 'r') as f:
                 content = f.readlines()
                 content = [c[:-1] for c in content]
                 pos.extend(content)
 
-        junk_names = glob.glob("../groundtruth/*{}*junk*".format(query_name))
+        junk_names = glob.glob(os.path.join('groundtruth', '*{}*junk*'.format(query_name)))
         for junk_name in junk_names:
             with open(junk_name, 'r') as f:
                 content = f.readlines()

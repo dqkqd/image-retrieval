@@ -1,10 +1,9 @@
+.ipynb_checkpoints/
 dataset/
 dataset100k/
 dataset_sift/
 dataset_h5py/
-app/static/temp/*
-app/__pycache__/
-eval/__pycache__/
-eval/temp/*
+__pycache__/
+static/temp/
 *.tgz
 *.zip

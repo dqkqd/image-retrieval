@@ -7,7 +7,6 @@ import numpy as np
 from tqdm import tqdm
 from sklearn.cluster import KMeans
 
-
 class PQ:
     def __init__(self, centers=None, n_clusters=256, dim=16):
         """Product quantization for better cluster
@@ -160,7 +159,7 @@ class compactCode:
         for i in range(self.codes.shape[1]):
             distance[:, i] = table[:, i][self.codes[:, i]]
 
-        distance = distance.sum(axis=1)
+        distance = distance.sum(axis=1)/desc.shape[1]
         indices = distance.argsort()
 
         return self.names[indices], distance[indices]
@@ -185,7 +184,7 @@ class Search:
         self.flann_params = dict(algorithm=1, trees=5)
         self.matcher = cv2.FlannBasedMatcher(self.flann_params, {})
 
-    def search(self, image_dir, coords):
+    def search(self, image_dir, coords, quiet=False):
 
         self.x, self.y, self.w, self.h = coords
         self.image_dir = image_dir
@@ -199,12 +198,25 @@ class Search:
         cv2.line(self.image_box, (self.x, self.y), (self.x, self.y+self.h), (0, 255, 0), 5)
         cv2.line(self.image_box, (self.x+self.w, self.y), (self.x+self.w, self.y+self.h), (0, 255, 0), 5)
         cv2.line(self.image_box, (self.x, self.y+self.h), (self.x+self.w, self.y+self.h), (0, 255, 0), 5)
-        cv2.imwrite('static/temp/drawed.jpg', self.image_box)
+        cv2.imwrite(os.path.join('static', 'temp', 'query.jpg'), self.image_box)
 
-        cv2.imwrite('static/temp/patch.jpg', self.patch)
-        os.system('../hesaff/extract_sift_from_image static/temp/patch.jpg static/temp/patch.sift')
+        cv2.imwrite(os.path.join('static', 'temp', 'patch.jpg'), self.patch)
+        if quiet == False:
+            cmd = '{} {} {}'.format(
+                os.path.join('hesaff', 'extract_sift_from_image'),
+                os.path.join('static', 'temp', 'patch.jpg'),
+                os.path.join('static', 'temp', 'patch.sift'),
+            )
+            os.system(cmd)
+        else:
+            cmd = '{} {} {}'.format(
+                os.path.join('hesaff', 'extract_sift_from_image_quiet'),
+                os.path.join('static', 'temp', 'patch.jpg'),
+                os.path.join('static', 'temp', 'patch.sift'),
+            )
+            os.system(cmd)
 
-        with open('static/temp/patch.sift', 'r') as f:
+        with open(os.path.join('static','temp','patch.sift'), 'r') as f:
             text = f.readlines()
             values = [t[:-1].split(' ') for t in text[2:]]
             values = np.array(values, dtype=np.float32)
@@ -216,7 +228,7 @@ class Search:
 
     def filter_matches(self, rank):
 
-        data_img = cv2.imread('../dataset/{}.jpg'.format(self.rank_list[rank]))
+        data_img = cv2.imread(os.path.join('dataset', '{}.jpg'.format(self.rank_list[rank])))
 
         h1, w1 = self.image.shape[:2]
         h2, w2 = data_img.shape[:2]
@@ -226,7 +238,7 @@ class Search:
         res_img[:h2, w1:] = data_img
 
 
-        file_h5py = '../dataset_h5py/{}.h5py'.format(self.rank_list[rank])
+        file_h5py = os.path.join('dataset_h5py', '{}.h5py'.format(self.rank_list[rank]))
         with h5py.File(file_h5py, 'r') as hf:
             keys = hf['keypoints'][:]
             desc = hf['descriptors'][:]
@@ -261,7 +273,7 @@ class Search:
         else:
             self.inlier[rank] = 0
 
-        cv2.imwrite('static/temp/result{:02}.jpg'.format(rank%10), data_img)
+        cv2.imwrite(os.path.join('static', 'temp', 'result{:02}.jpg'.format(rank%10)), data_img)
 
         if status is not None :#and self.inlier[rank] != 0:
             p1 = np.int32(p1) + [self.x, self.y]
@@ -271,7 +283,7 @@ class Search:
                 x2, y2 = p2[i]
                 if inlier:
                     cv2.line(res_img, (x1, y1), (x2, y2), (255, 0, 0), 2)
-        cv2.imwrite('static/temp/combined{:02}.jpg'.format(rank%10), res_img)
+        cv2.imwrite(os.path.join('static', 'temp', 'combined{:02}.jpg'.format(rank%10)), res_img)
 
     def draw_box(self, num):
         for i in range((num-1)*10, num*10):
