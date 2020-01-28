@@ -1,6 +1,6 @@
 # Image Retrieval
 
-Retrieve Image using [Hessian Affine SIFT](https://github.com/perdoch/hesaff) written on python3.
+Retrieve Image on Oxford5k dataset using [Hessian Affine SIFT](https://github.com/perdoch/hesaff)
 
 ## Requirements
 ```
