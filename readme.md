@@ -1,6 +1,6 @@
 # Image Retrieval
 
-Retrieve Image on Oxford5k dataset using [Hessian Affine SIFT](https://github.com/perdoch/hesaff)
+Retrieve Image on Oxford5k dataset using [Hessian Affine SIFT](https://github.com/perdoch/hesaff) and [VLAD](https://hal.inria.fr/inria-00548637/file/jegou_compactimagerepresentation_slides.pdf)
 
 ## Requirements
 ```

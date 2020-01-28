@@ -140,19 +140,28 @@ class compactCode:
             return None
         return self.pq.predict(self.vlad.encode(desc).reshape(1, -1))
 
-    def lookup_table(self, vlad_vector=None):
+    def lookup_table(self, vlad_vector=None, euclid=True):
         assert vlad_vector is not None
-
         table = np.zeros((self.pq.centers.shape[0], self.pq.centers.shape[1]//self.pq.dim), dtype=np.float32)
-        for i in range(table.shape[1]):
-            cur_centers = self.pq.centers[:, i*self.pq.dim: (i+1)*self.pq.dim]
-            cur_vector = vlad_vector[i*self.pq.dim: (i+1)*(self.pq.dim)]
-            table[:, i] = np.sum((cur_centers - cur_vector)**2, axis=1)
+
+        # euclid
+        if euclid:
+            for i in range(table.shape[1]):
+                cur_centers = self.pq.centers[:, i*self.pq.dim: (i+1)*self.pq.dim]
+                cur_vector = vlad_vector[i*self.pq.dim: (i+1)*(self.pq.dim)]
+                table[:, i] = np.sum((cur_centers - cur_vector)**2, axis=1)
+
+        # cosine
+        else:
+            for i in range(table.shape[1]):
+                cur_centers = self.pq.centers[:, i*self.pq.dim: (i+1)*self.pq.dim]
+                cur_vector = vlad_vector[i*self.pq.dim: (i+1)*(self.pq.dim)]
+                table[:, i] = -np.sum(cur_centers * cur_vector)
         return table
 
-    def search(self, desc):
+    def search(self, desc, euclid=True):
         v = self.vlad.encode(desc)
-        table = self.lookup_table(v)
+        table = self.lookup_table(v, euclid)
 
         distance = np.zeros(self.codes.shape, dtype=np.float32)
 
@@ -184,7 +193,7 @@ class Search:
         self.flann_params = dict(algorithm=1, trees=5)
         self.matcher = cv2.FlannBasedMatcher(self.flann_params, {})
 
-    def search(self, image_dir, coords, quiet=False):
+    def search(self, image_dir, coords, quiet=False, euclid=True):
 
         self.x, self.y, self.w, self.h = coords
         self.image_dir = image_dir
@@ -223,7 +232,7 @@ class Search:
             self.keys = np.array(values[:, :5], dtype=np.float32)
             self.desc = np.array(values[:, 5:], dtype=np.uint8)
 
-        self.rank_list, self.distance = self.model.search(self.desc)
+        self.rank_list, self.distance = self.model.search(self.desc, euclid)
         self.inlier = np.zeros(self.rank_list.shape[0], dtype=np.uint8)
 
     def filter_matches(self, rank):
