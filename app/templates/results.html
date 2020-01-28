@@ -1,0 +1,21 @@
+<head>
+    <meta charset="UTF-8">
+    <title>Results</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css')}}">
+</head>
+<body>
+    <h2>Query</h2>
+    <img class="small2" src="{{url_for('static', filename='temp/drawed.jpg')}}"/>
+    <h1></h1>
+    <h2> Results {{(pagenum-1)*10 + 1}} - {{pagenum*10}} out of 5063 </h2>
+    {{out}}
+
+    <ul class="pagination">
+        {%if pagenum == 1%}
+        <li class="page-item disabled"><a class="page-link" href="#">Previous</a></li>
+        {%else%}
+        <li class="page-item"><a class="page-link" href="/results/{{pagenum}}">Previous</a></li>
+        {%endif%}
+        <li class="page-item"><a class="page-link" href="/results/{{pagenum+1}}">Next</a></li>
+    </ul>
+</body>

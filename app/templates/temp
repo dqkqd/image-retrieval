@@ -1,0 +1,14 @@
+    <div class="row2">
+        <div class="block2">
+            <h1></h1>
+            <span class="text">1</span>
+            <span class="attr">
+                <br>name: abc</br>
+                <br>distance: xyz</br>
+                <br>inlier: pqr</br>
+            </span>
+            <img class="small" src="{{url_for('static', filename='temp/drawed.jpg')}}"/>
+            <img class="small" src="{{url_for('static', filename=filename[0])}}" />
+            <h1></h1>
+        </div>
+    </div>
